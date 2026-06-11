@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social Autopilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="logo"><span>A</span><strong>Social Autopilot</strong></div>
+      <nav>
+        <button class="nav active" data-view="upload">↥ <span>Carica video</span></button>
+        <button class="nav" data-view="studio">✧ <span>Studio testi</span></button>
+        <button class="nav" data-view="schedule">◴ <span>Programmazione</span></button>
+        <button class="nav" data-view="queue">☑ <span>Coda</span></button>
+        <button class="nav" data-view="settings">⚙ <span>Impostazioni</span></button>
+      </nav>
+      <div class="steps"><span>Carica</span><span>Approva</span><span>Fatto</span></div>
+    </aside>
+
+    <main>
+      <section id="setup" class="view hidden">
+        <div class="page setupPage">
+          <h1>Configura il tuo Autopilot</h1>
+          <p>Questa copia non deve usare per forza i miei strumenti. Segui i passaggi, collega i tuoi servizi e poi apri lo studio.</p>
+          <div class="setupGrid">
+            <article class="setupStep">
+              <span>1</span>
+              <h2>Pubblicazione</h2>
+              <p>Serve un servizio che carichi video e programmi post sui social. Questa versione include gia l'adapter Blotato: se usi un altro servizio, cambia le route upload, account e publish nel backend.</p>
+              <div class="toolHints">
+                <strong>Usato in questa copia:</strong> Blotato.
+                <strong>Alternative:</strong> Buffer, Make, Zapier, n8n, Ayrshare, API native Meta/LinkedIn/YouTube/X.
+                <strong>Scelta semplice:</strong> Blotato o Ayrshare se vuoi una sola API per piu social.
+              </div>
+              <label>Nome servizio pubblicazione</label>
+              <input id="publisherName" placeholder="Es. Blotato, Buffer, Make, Zapier..." />
+              <label>API key pubblicazione</label>
+              <input id="publisherKey" type="password" placeholder="Chiave del servizio che pubblica" />
+            </article>
+            <article class="setupStep">
+              <span>2</span>
+              <h2>Generatore testi</h2>
+              <p>Opzionale. Se il tuo amico usa un'altra AI, puo lasciare vuoto ora e collegarla dopo sostituendo la route generate.</p>
+              <div class="toolHints">
+                <strong>Usato in questa copia:</strong> Claude API.
+                <strong>Alternative:</strong> OpenAI API, Gemini API, Mistral, Groq, Ollama in locale.
+                <strong>Scelta semplice:</strong> OpenAI o Claude se vuoi caption buone senza gestire modelli locali.
+              </div>
+              <label>Nome generatore testi</label>
+              <input id="writerName" placeholder="Es. OpenAI, Claude, Gemini, manuale..." />
+              <label>API key generatore testi</label>
+              <input id="writerKey" type="password" placeholder="Opzionale" />
+            </article>
+            <article class="setupStep">
+              <span>3</span>
+              <h2>Trascrizione</h2>
+              <p>Opzionale. Serve solo se vuoi estrarre automaticamente il parlato dai video. Altrimenti puoi incollare la trascrizione a mano.</p>
+              <div class="toolHints">
+                <strong>Usato in questa copia:</strong> Deepgram.
+                <strong>Alternative:</strong> OpenAI Whisper, AssemblyAI, Speechmatics, Google Speech-to-Text, Azure Speech.
+                <strong>Scelta semplice:</strong> Deepgram per API veloce; Whisper se vuoi restare nell'ecosistema OpenAI.
+              </div>
+              <label>Nome servizio trascrizione</label>
+              <input id="transcriberName" placeholder="Es. Deepgram, Whisper, AssemblyAI..." />
+              <label>API key trascrizione</label>
+              <input id="transcriberKey" type="password" placeholder="Opzionale" />
+            </article>
+            <article class="setupStep">
+              <span>4</span>
+              <h2>Hosting</h2>
+              <p>Questa cartella e pronta per Netlify, ma puoi portarla su un altro hosting se supporta frontend statico e funzioni server.</p>
+              <div class="toolHints">
+                <strong>Usato in questa copia:</strong> Netlify.
+                <strong>Alternative:</strong> VPS con Node, Render, Railway, Fly.io, Vercel, Cloudflare Tunnel.
+                <strong>Scelta semplice:</strong> Netlify per deploy rapido; VPS/self-host se vuoi sottodominio e controllo totale.
+              </div>
+              <label>Dove lo pubblicherai?</label>
+              <input id="hostingName" placeholder="Es. Netlify, Vercel, server privato..." />
+              <div class="checklist">
+                <label><input id="codeReadyCheck" type="checkbox" /> Ho capito che servizi diversi richiedono adapter backend diversi</label>
+                <label><input id="envReadyCheck" type="checkbox" /> Ho salvato le chiavi nel posto sicuro del mio hosting</label>
+              </div>
+            </article>
+          </div>
+          <div class="card setupFinish">
+            <label>Password app</label>
+            <input id="setupPassword" type="password" placeholder="Scegli una password per entrare" />
+            <label>Il mio stile</label>
+            <textarea id="setupStyle" rows="7"></textarea>
+            <button id="saveSetup" class="primary wide">Salva configurazione e apri Studio</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="login" class="view hidden">
+        <div class="page narrow">
+          <h1>Entra</h1>
+          <p>Inserisci la password scelta nel setup.</p>
+          <div class="card">
+            <input id="loginPassword" type="password" placeholder="Password app" />
+            <button id="loginBtn" class="primary wide">Apri Studio</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="upload" class="view">
+        <div class="page">
+          <div class="pageHead">
+            <div>
+              <h1>Carica video</h1>
+              <p>Trascina qui i tuoi video. Li carico sul servizio di pubblicazione configurato, poi puoi scrivere o generare i testi e approvare.</p>
+            </div>
+          </div>
+          <label class="drop">
+            <strong>Trascina i video o clicca per selezionare</strong>
+            <span>Più file insieme · MP4, MOV · fino a 1GB ciascuno</span>
+            <input id="files" type="file" accept="video/*" multiple />
+          </label>
+          <div class="rowHead">
+            <h2>I tuoi video</h2>
+            <button id="goStudio" class="primary">✧ Vai allo Studio testi</button>
+          </div>
+          <div id="videoList" class="list empty">Nessun video caricato.</div>
+        </div>
+      </section>
+
+      <section id="studio" class="view hidden">
+        <div class="page">
+          <h1>Studio testi</h1>
+          <p>Puoi scrivere a mano, partire dalla trascrizione o usare il generatore testi configurato. Le varianti restano modificabili prima della pubblicazione.</p>
+          <div class="card">
+            <label>Testo base opzionale</label>
+            <textarea id="baseText" rows="4" placeholder="Scrivi qui un testo da usare come base, oppure lascia vuoto e fa tutto l'AI."></textarea>
+            <label>Di cosa parlano questi video?</label>
+            <input id="batchNote" placeholder="Es. 3 errori che fanno le PMI con le ads..." />
+            <label>Varianti per ogni social</label>
+            <div class="segmented" id="variantPick">
+              <button type="button" data-variants="1">1</button>
+              <button type="button" class="on" data-variants="2">2</button>
+              <button type="button" data-variants="3">3</button>
+            </div>
+            <div class="toolbar">
+              <button id="generateBtn" class="primary">✧ Genera testi per ogni social</button>
+              <button id="applyBaseText">Usa testo base per tutti</button>
+            </div>
+            <p class="muted" style="margin:12px 0 0">Le regole di stile e gli esempi si impostano in <button class="linkBtn" data-view-link="settings">Impostazioni</button>.</p>
+          </div>
+          <div id="studioList" class="stack empty">Carica almeno un video.</div>
+        </div>
+      </section>
+
+      <section id="schedule" class="view hidden">
+        <div class="page">
+          <h1>Autopilot: scegli la strategia</h1>
+          <p>Scelgo io <strong>quando, quanto e dove</strong> pubblicare ogni video. Tu scegli solo il ritmo e dai l'ok. I canali usati sono quelli attivi nelle Impostazioni.</p>
+          <div class="strategyGrid" id="strategyGrid">
+            <button type="button" class="strategyCard" data-strategy="aggressiva">
+              <strong>Aggressiva</strong>
+              <span>Ogni video su tutti i canali compatibili, fino a 3 post/giorno. Massima presenza, per lanci.</span>
+            </button>
+            <button type="button" class="strategyCard on" data-strategy="media">
+              <strong>Media <em>· consigliata</em></strong>
+              <span>1 post al giorno per canale, ritmo costante e sostenibile. Cross-platform sfalsato.</span>
+            </button>
+            <button type="button" class="strategyCard" data-strategy="lenta">
+              <strong>Lenta</strong>
+              <span>3-4 post a settimana per canale. Spalma l'archivio nel tempo, copertura costante.</span>
+            </button>
+          </div>
+          <div class="card">
+            <label>Fasce orarie di pubblicazione</label>
+            <p class="muted" style="margin:0 0 8px">L'orario esatto al minuto non conta: scegli in quali fasce della giornata pubblicare. Il calendario distribuisce i post in queste fasce (fino al massimo previsto dalla strategia).</p>
+            <div id="bands" class="switches">
+              <label>Mattina · 9:00 <input type="checkbox" data-band="mattina" checked /></label>
+              <label>Pranzo · 13:00 <input type="checkbox" data-band="pranzo" checked /></label>
+              <label>Pomeriggio · 17:00 <input type="checkbox" data-band="pomeriggio" /></label>
+              <label>Sera · 20:00 <input type="checkbox" data-band="sera" checked /></label>
+            </div>
+            <label>Parti dal giorno</label>
+            <input id="startDate" type="date" />
+            <div class="toolbar">
+              <button id="makeCalendar" class="primary">◴ Crea calendario</button>
+              <button id="appendCalendar">+ Accoda nuovi video</button>
+            </div>
+            <p class="muted" style="margin:14px 0 0">«Crea calendario» rifà tutto da capo per i video caricati. «Accoda» aggiunge solo i video nuovi in fondo alla coda esistente, senza toccare i già programmati.</p>
+          </div>
+          <div class="card">
+            <h2>Pubblica senza calendario</h2>
+            <p>Per i post pronti (con testo) puoi saltare la programmazione e mandarli subito, oppure scegliere un orario di oggi.</p>
+            <div class="toolbar">
+              <button id="publishNowBtn">✈ Pubblica subito</button>
+              <input id="publishTodayTime" type="time" style="width:auto" />
+              <button id="publishTodayBtn">◴ Pubblica oggi a quest'ora</button>
+            </div>
+          </div>
+          <div id="calendarPreview" class="stack empty">Scegli una strategia e premi «Crea calendario» per vedere l'anteprima.</div>
+        </div>
+      </section>
+
+      <section id="queue" class="view hidden">
+        <div class="page">
+          <div class="pageHead">
+            <div><h1>Coda</h1><p>L'ultimo passo: dai l'ok. Programmo tutto sul servizio collegato a blocchi. <strong>Tieni aperta questa scheda</strong> finché finisce.</p></div>
+            <button id="publishBtn" class="primary">✈ Programma tutto</button>
+          </div>
+          <div id="progressWrap" class="progressWrap hidden">
+            <div class="progressBar"><div id="progressFill" class="progressFill"></div></div>
+            <div id="progressText" class="muted"></div>
+          </div>
+          <div id="queueSummary" class="queueSummary muted"></div>
+          <div id="queueList" class="stack empty">Nessun post in coda. Vai in <button class="linkBtn" data-view-link="schedule">Programmazione</button> e crea il calendario.</div>
+        </div>
+      </section>
+
+      <section id="settings" class="view hidden">
+        <div class="page narrow">
+          <h1>Impostazioni</h1>
+          <p>Strumenti collegati, stile di scrittura e social attivi.</p>
+          <div class="card">
+            <h2>Servizio di pubblicazione</h2>
+            <p>Qui colleghi il motore che carica i video e pubblica sui social. Questa versione include l'adapter Blotato.</p>
+            <button id="accountsBtn">↻ Collega account</button>
+            <div id="accounts" class="accounts muted">Non caricati.</div>
+            <button id="diagnosticsBtn">Test connessioni</button>
+            <pre id="diagnostics" class="diagnostics hidden"></pre>
+          </div>
+          <div class="card">
+            <h2>Trascrizione automatica</h2>
+            <p>Estrae il parlato dai video appena caricati. Questa versione include l'adapter Deepgram, ma puoi sostituirlo nel backend.</p>
+            <input id="deepgramKey" type="password" placeholder="API key trascrizione" />
+            <button id="saveDeepgram" class="primary">Salva key trascrizione</button>
+            <div id="deepgramState" class="muted" style="margin-top:10px"></div>
+          </div>
+          <div class="card">
+            <h2>Knowledge base di stile</h2>
+            <p>Tono di voce, regole del brand ed <strong>esempi dei tuoi contenuti</strong>. Verranno passati al generatore testi configurato.</p>
+            <label>Regole / prompt di stile</label>
+            <textarea id="brandPrompt" rows="6" placeholder="Es. Tono diretto, niente buzzword. Hook nella prima riga. CTA soft. Niente emoji a inizio frase. Frasi brevi..."></textarea>
+            <label>Esempi dei miei post (la tua knowledge base)</label>
+            <textarea id="styleExamples" rows="12" placeholder="Incolla qui i tuoi post migliori. Separa gli esempi con una riga vuota. Il generatore testi dovra imitare tono, ritmo e struttura, senza copiare il contenuto."></textarea>
+            <div class="kbBar">
+              <label class="fileMini">+ Carica esempi da file (anche più insieme) <input id="examplesFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown" multiple /></label>
+              <button id="clearExamples" type="button">Svuota</button>
+              <span id="examplesMeta" class="muted"></span>
+            </div>
+            <button id="saveBrand" class="primary">Salva regole ed esempi</button>
+          </div>
+          <div class="card">
+            <h2>Hashtag fissi</h2>
+            <p>Questi hashtag vengono aggiunti in fondo a <strong>ogni</strong> post (separati da spazio). Lascia vuoto per non aggiungerne. Su <strong>X (Twitter)</strong> viene usato <strong>solo il primo</strong> hashtag della lista, per stare nei 280 caratteri.</p>
+            <input id="fixedHashtags" placeholder="#raffaelloluly #traveltech #marketing" />
+            <button id="saveHashtags" class="primary" style="margin-top:12px">Salva hashtag</button>
+          </div>
+          <div class="card">
+            <h2>Social attivi</h2>
+            <div id="channels" class="switches">
+              <label>Facebook <input type="checkbox" data-platform="facebook" checked /></label>
+              <label>Instagram <input type="checkbox" data-platform="instagram" checked /></label>
+              <label>LinkedIn <input type="checkbox" data-platform="linkedin" checked /></label>
+              <label>YouTube <input type="checkbox" data-platform="youtube" checked /></label>
+              <label>X (Twitter) <input type="checkbox" data-platform="twitter" checked /></label>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Il mio stile</h2>
+            <p>Come deve scrivere il generatore testi. Incolla esempi o carica un file.</p>
+            <textarea id="liveStyle" rows="10"></textarea>
+            <label class="fileMini">Carica stile da file <input id="styleFile" type="file" accept=".txt,.md,text/plain,text/markdown" /></label>
+            <button id="saveLiveStyle" class="primary">Salva stile</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
